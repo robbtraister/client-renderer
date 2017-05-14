@@ -22,7 +22,7 @@ CMD \
     PORT=${PORT:-8080}; \
     PHANTOMJS_PORT=$(expr ${PORT} + 1); \
 
-    if [ "${PROXY}" == "nginx" ] || [ "${PHANTOMJS}" == "server" ]; \
+    if [ "${PROXY}" == "nginx" ] || [ "${PHANTOMJS}" != "process" ]; \
     then \
       SOURCE="http://localhost:${PORT}" PORT=${PHANTOMJS_PORT} phantomjs phantomjs/server.js & \
     fi; \

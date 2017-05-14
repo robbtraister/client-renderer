@@ -20,7 +20,7 @@ function getRenderedHTML () {
 
 var src = system.env.SOURCE || 'http://localhost:8080'
 function render (url, cb) {
-  console.log('url', url)
+  system.stderr.writeLine('url: ' + url)
 
   var page = webpage.create()
   page.settings.loadImages = false
@@ -41,7 +41,7 @@ if (typeof module === 'undefined') {
     if (err) {
       phantom.exit(err)
     } else {
-      console.log(result)
+      system.stdout.writeLine(result)
       phantom.exit(0)
     }
   })

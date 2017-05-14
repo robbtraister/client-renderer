@@ -1,5 +1,4 @@
-client-renderer
-===============
+# client-renderer
 
 This is a dynamic client-side site rendering with a server-side fallback in the case of noscript
 
@@ -15,7 +14,9 @@ The layout jsonp is used by `docs/renderer.js` to load the necessary rendering c
 
 ## Server-Side
 
-There is a private phantomjs server running in the image that will be used if `rendered=true` query parameter is provided
+There is a private phantomjs server running in the image that will be used if `rendered=true` query parameter is provided.
+
+If nodejs is used for the public proxy (see below), phantomjs can be configured to run as a forked process instead of a server (set environment variable `PHANTOMJS` to `process` or `server`; default is server).  However, there is a startup delay for phantomjs processes which more than defeats the benefit of a dedicated process.
 
 ## Proxy
 

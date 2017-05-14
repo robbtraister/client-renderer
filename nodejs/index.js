@@ -8,23 +8,26 @@ var express = require('express')
 var compression = require('compression')
 
 var renderer
-if (process.env.PHANTOMJS === 'server') {
+if (process.env.PHANTOMJS === 'process') {
+  var childProcess = require('child_process')
+  renderer = function (req, res, next) {
+    childProcess.exec(`phantomjs "${__dirname}/../phantomjs/render.js" "${req.url}"`, (err, stdout, stderr) => {
+      if (err) {
+        return next(err)
+      }
+      if (stderr) {
+        console.error(stderr.toString().trim())
+      }
+      res.send(stdout)
+    })
+  }
+} else {
   var httpProxy = require('http-proxy')
   var proxy = httpProxy.createProxyServer({
     target: process.env.RENDERER || 'http://localhost:8081'
   })
   renderer = function (req, res, next) {
     proxy.web(req, res)
-  }
-} else {
-  var childProcess = require('child_process')
-  renderer = function (req, res, next) {
-    childProcess.exec(`phantomjs "${__dirname}/../phantomjs/render.js" "${req.url}"`, (err, result) => {
-      if (err) {
-        return next(err)
-      }
-      res.send(result)
-    })
   }
 }
 
