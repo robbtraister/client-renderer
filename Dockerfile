@@ -19,16 +19,19 @@ COPY nodejs ./nodejs
 COPY phantomjs ./phantomjs
 
 CMD \
+    PORT=${PORT:-8080}; \
+    PHANTOMJS_PORT=$(expr ${PORT} + 1); \
+
     if [ "${PROXY}" == "nginx" ] || [ "${PHANTOMJS}" == "server" ]; \
     then \
-      SOURCE="http://localhost:${PORT:-8080}" PORT=8081 phantomjs phantomjs/server.js & \
+      SOURCE="http://localhost:${PORT}" PORT=${PHANTOMJS_PORT} phantomjs phantomjs/server.js & \
     fi; \
 
     if [ "${PROXY}" == "nginx" ]; \
     then \
       # nginx doesn't mix well with phantomjs at the moment
       # must be a header / cache issue; need to investigate
-      PORT=${PORT:-8080} RENDERER=http://localhost:8081 nginx/nginx.conf.sh > nginx/nginx.conf && nginx -p nginx -c nginx.conf; \
+      RENDERER=http://localhost:${PHANTOMJS_PORT} nginx/nginx.conf.sh > nginx/nginx.conf && nginx -p nginx -c nginx.conf; \
     else \
-      PORT=${PORT:-8080} RENDERER=http://localhost:8081 node nodejs/index.js; \
+      RENDERER=http://localhost:${PHANTOMJS_PORT} node nodejs/index.js; \
     fi;

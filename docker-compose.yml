@@ -8,5 +8,5 @@ services:
       - "./docs:/workdir/docs"
     environment:
       PORT: 8080
-      PHANTOMJS: server
       PROXY: nodejs
+      PHANTOMJS: server
