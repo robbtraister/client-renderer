@@ -6,7 +6,27 @@ var url = require('url')
 
 var express = require('express')
 var compression = require('compression')
-var httpProxy = require('http-proxy')
+
+var renderer
+if (process.env.PHANTOMJS === 'server') {
+  var httpProxy = require('http-proxy')
+  var proxy = httpProxy.createProxyServer({
+    target: process.env.RENDERER || 'http://localhost:8081'
+  })
+  renderer = function (req, res, next) {
+    proxy.web(req, res)
+  }
+} else {
+  var childProcess = require('child_process')
+  renderer = function (req, res, next) {
+    childProcess.exec(`phantomjs "${__dirname}/../phantomjs/render.js" "${req.url}"`, (err, result) => {
+      if (err) {
+        return next(err)
+      }
+      res.send(result)
+    })
+  }
+}
 
 var app = express()
 
@@ -21,9 +41,6 @@ app.use((req, res, next) => {
 
 app.use(compression())
 
-var proxy = httpProxy.createProxyServer({
-  target: process.env.RENDERER || 'http://localhost:8081'
-})
 // no extension, or htm, or html
 app.get('*', (req, res, next) => {
   if (req.query.rendered === 'true') {
@@ -31,7 +48,8 @@ app.get('*', (req, res, next) => {
     delete urlParts.query.rendered
     delete urlParts.search
     req.url = url.format(urlParts)
-    proxy.web(req, res)
+
+    renderer(req, res, next)
   } else {
     next()
   }
@@ -46,9 +64,9 @@ app.get(/\/[^/.]*$/, (req, res, next) => {
 
 app.get('*', express.static(path.join(__dirname, '..', 'docs')))
 
-var indexFile = path.join(__dirname, '..', 'docs', 'index.html')
+var indexFilePath = path.join(__dirname, '..', 'docs', 'index.html')
 app.get('*', (req, res, next) => {
-  fs.readFile(indexFile, function (err, buf) {
+  fs.readFile(indexFilePath, function (err, buf) {
     if (err) return next(err)
 
     res.set('Content-Type', 'text/html')
