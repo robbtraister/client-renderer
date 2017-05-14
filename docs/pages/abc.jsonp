@@ -1,6 +1,0 @@
-var layout = {
-  components: [
-    'some feature',
-    'another paragraph'
-  ]
-}

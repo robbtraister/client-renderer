@@ -3,7 +3,9 @@
 var fs = require('fs')
 var path = require('path')
 var url = require('url')
+
 var express = require('express')
+var compression = require('compression')
 var httpProxy = require('http-proxy')
 
 var app = express()
@@ -16,6 +18,8 @@ app.use((req, res, next) => {
   console.log(req.url)
   next()
 })
+
+app.use(compression())
 
 var proxy = httpProxy.createProxyServer({
   target: process.env.RENDERER || 'http://localhost:8081'

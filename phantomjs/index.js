@@ -22,7 +22,7 @@ var app = webserver.create()
 var port = system.env.PORT || 8081
 var src = system.env.SOURCE || 'http://localhost:8080'
 var serving = app.listen(port, function (req, res) {
-  console.log(req.url)
+  console.log('url', req.url)
 
   var page = webpage.create()
   page.settings.loadImages = false

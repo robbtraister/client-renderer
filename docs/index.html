@@ -1,8 +1,22 @@
 <!DOCTYPE html>
 <html>
+  <head />
+  <body />
   <noscript>
     <meta http-equiv="refresh" content="0; url=?rendered=true">
   </noscript>
-  <body />
+  <script type="text/javascript">
+    //<![CDATA[
+    var page = document.location.pathname
+      // strip trailing / or .htm/.html
+      .replace(/(\/|\.html?)$/, '')
+      // if it's empty, use `/homepage`
+      .replace(/^$/, '/homepage')
+
+    // closed script tag, even in string, will be recognized as the end of script
+    var tag = 'script'
+    document.write('<' + tag + ' src="' + '/data' + page + '.jsonp' + '"></' + tag + '>')
+    //]]>
+  </script>
   <script type="text/javascript" src="/renderer.js"></script>
 </html>

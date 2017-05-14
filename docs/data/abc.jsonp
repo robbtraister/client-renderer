@@ -1,0 +1,16 @@
+var layout = {
+  "components": [
+    {
+      "type": "body",
+      "content": "some feature"
+    },
+    {
+      "type": "body",
+      "content": "another paragraph"
+    },
+    {
+      "type": "comment",
+      "content": "this is a different type"
+    }
+  ]
+}

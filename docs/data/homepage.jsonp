@@ -1,0 +1,8 @@
+var layout = {
+  "components": [
+    {
+      "type": "body",
+      "content": "HOMEPAGE"
+    }
+  ]
+}
