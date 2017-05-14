@@ -5,7 +5,9 @@ This is a dynamic client-side site rendering with a server-side fallback in the 
 
 ## Docs
 
-Any url that does not match a static file found in `docs/` will be served the `docs/index.html`.  This file will load the corresponding jsonp layout config from `docs/layouts`.
+Any url that does not match a static file found in `docs/` will be served the `docs/index.html`.  This file will load the corresponding jsonp layout config from `docs/data`.
+
+For the requests `/abc`, `/abc/`, or `/abc.html`, the layout found in `docs/data/abc.jsonp` will be used.
 
 ## Rendering
 
