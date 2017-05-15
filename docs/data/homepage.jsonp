@@ -2,7 +2,14 @@ var layout = {
   "components": [
     {
       "type": "body",
-      "content": "HOMEPAGE<br/><a href='/abc'>abc</a>"
+      "content": "HOMEPAGE"
+    },
+    {
+      "type": "link",
+      "content": {
+        "href": "/abc",
+        "text": "abc"
+      }
     }
   ]
 }
