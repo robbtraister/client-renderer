@@ -31,7 +31,7 @@ http {
     root /workdir/docs;
 
     location / {
-      if (\$args ~ (^|.*&)rendered=true(&.*|\$)) {
+      if (\$args ~ (^|.*&)rendered(&.*|\$)) {
         set \$args \$1\$2;
         proxy_pass ${RENDERER:-http://localhost:8081};
       }

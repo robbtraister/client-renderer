@@ -9,4 +9,5 @@ services:
     environment:
       PORT: 8080
       PROXY: nodejs
+      COOKIE_REDIRECT: "false"
       PHANTOMJS: process

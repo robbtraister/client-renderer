@@ -6,30 +6,12 @@ var url = require('url')
 
 var express = require('express')
 var compression = require('compression')
+var cookieParser = require('cookie-parser')
 
-var renderer
-if (process.env.PHANTOMJS === 'process') {
-  var childProcess = require('child_process')
-  renderer = function (req, res, next) {
-    childProcess.exec(`phantomjs "${__dirname}/../phantomjs/render.js" "${req.url}"`, (err, stdout, stderr) => {
-      if (err) {
-        return next(err)
-      }
-      if (stderr) {
-        console.error(stderr.toString().trim())
-      }
-      res.send(stdout)
-    })
-  }
-} else {
-  var httpProxy = require('http-proxy')
-  var proxy = httpProxy.createProxyServer({
-    target: process.env.RENDERER || 'http://localhost:8081'
-  })
-  renderer = function (req, res, next) {
-    proxy.web(req, res)
-  }
-}
+var renderer = require('./renderer')
+
+var RENDER_QUERY_TOKEN = 'rendered'
+var RENDER_COOKIE_TOKEN = RENDER_QUERY_TOKEN
 
 var app = express()
 
@@ -44,19 +26,55 @@ app.use((req, res, next) => {
 
 app.use(compression())
 
-// no extension, or htm, or html
-app.get('*', (req, res, next) => {
-  if (req.query.rendered === 'true') {
-    var urlParts = url.parse(req.url, true, true)
-    delete urlParts.query.rendered
-    delete urlParts.search
-    req.url = url.format(urlParts)
-
-    renderer(req, res, next)
-  } else {
+app.get('*',
+  (req, res, next) => {
+    if (req.query && req.query.hasOwnProperty(RENDER_QUERY_TOKEN)) {
+      // remove 'rendered' query parameter
+      var urlParts = url.parse(req.originalUrl, true, true)
+      delete urlParts.query.rendered
+      delete urlParts.search
+      req.render = true
+      req.originalUrl = url.format(urlParts)
+    }
     next()
   }
-})
+)
+
+if (process.env.COOKIE_REDIRECT === 'true') {
+  app.get('*',
+    (req, res, next) => {
+      if (req.render) {
+        // set rendered cookie value and refresh
+        res.cookie(RENDER_COOKIE_TOKEN, '')
+        return res.redirect(req.originalUrl)
+      } else {
+        next()
+      }
+    },
+    cookieParser({ extended: false }),
+    (req, res, next) => {
+      if (req.cookies && req.cookies.hasOwnProperty && req.cookies.hasOwnProperty(RENDER_COOKIE_TOKEN)) {
+        // remove rendered cookie
+        res.clearCookie(RENDER_COOKIE_TOKEN)
+        // render server-side
+        return renderer(req, res, next)
+      } else {
+        next()
+      }
+    }
+  )
+} else {
+  app.get('*',
+    (req, res, next) => {
+      if (req.render) {
+        // render server-side
+        return renderer(req, res, next)
+      } else {
+        next()
+      }
+    }
+  )
+}
 
 app.get(/\/[^/.]*$/, (req, res, next) => {
   var urlParts = url.parse(req.url, true, true)
